@@ -3,7 +3,7 @@
 #include <fstream>
 #include "Submarine.h"
 #include "Sailboat.h"
-// #include "Motorboat.h"
+#include "Motorboat.h"
 
 int main() {
     SetConsoleOutputCP(65001);
@@ -37,7 +37,7 @@ int main() {
                 Ship* newShip = nullptr;
                 if (type == "1") newShip = new Submarine();
                 else if (type == "2") newShip = new Sailboat();
-                // else if (type == "motorboat") newShip = new Motorboat();
+                else if (type == "3") newShip = new Motorboat();
                 else {
                     std::cout << "Неизвестный тип корабля!\n";
                     break;
@@ -96,7 +96,7 @@ int main() {
                     Ship* ship = nullptr;
                     if (type == "Submarine") ship = new Submarine();
                     else if (type == "Sailboat") ship = new Sailboat();
-                    // else if (type == "Motorboat") ship = new Motorboat();
+                    else if (type == "Motorboat") ship = new Motorboat();
                     else {
                         std::cout << "Неизвестный тип корабля в файле!\n";
                         continue;

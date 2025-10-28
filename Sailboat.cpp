@@ -16,7 +16,7 @@ Sailboat::~Sailboat() {
 }
 
 void Sailboat::Input() {
-    Ship::Input();
+    //Ship::Input();
 
     try {
         std::cout << "Введите тип парусника: ";
