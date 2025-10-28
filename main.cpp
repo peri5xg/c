@@ -2,7 +2,7 @@
 #include <windows.h>
 #include <fstream>
 #include "Submarine.h"
-// #include "Sailboat.h"
+#include "Sailboat.h"
 // #include "Motorboat.h"
 
 int main() {
@@ -36,7 +36,7 @@ int main() {
 
                 Ship* newShip = nullptr;
                 if (type == "1") newShip = new Submarine();
-                // else if (type == "sailboat") newShip = new Sailboat();
+                else if (type == "2") newShip = new Sailboat();
                 // else if (type == "motorboat") newShip = new Motorboat();
                 else {
                     std::cout << "Неизвестный тип корабля!\n";
@@ -95,7 +95,7 @@ int main() {
                     std::getline(fin, type);
                     Ship* ship = nullptr;
                     if (type == "Submarine") ship = new Submarine();
-                    // else if (type == "Sailboat") ship = new Sailboat();
+                    else if (type == "Sailboat") ship = new Sailboat();
                     // else if (type == "Motorboat") ship = new Motorboat();
                     else {
                         std::cout << "Неизвестный тип корабля в файле!\n";
