@@ -1,27 +1,35 @@
-#pragma once
-#include "Ship.h"
-#include "Submarine.h"
-#include "Sailboat.h"
-#include "Motorboat.h"
-#include <iostream>
-#include <fstream>
+#ifndef KEEPER_H
+#define KEEPER_H
+#include "Vehicle.h"
+
+class IndexOutOfRangeException : public std::exception {
+public:
+    const char* what() const noexcept override { return "Index is out of range."; }
+};
+
+class FileException : public std::exception {
+public:
+    FileException(const char* msg) : message(msg) {}
+    const char* what() const noexcept override { return message; }
+private:
+    const char* message;
+};
 
 class Keeper {
 private:
-    Ship** ships;   // массив указателей на корабли
-    int count;      // текущее количество
-    int capacity;   // ёмкость
-
-    void Expand();  // увеличение массива при нехватке места
-
+    Vehicle** vehicles;
+    int size;
 public:
     Keeper();
     ~Keeper();
-
-    void Add(Ship* ship);
-    void RemoveByName(const std::string& name);
-    void DisplayAll() const;
-
-    void SaveToFile(const char* filename) const;
-    void LoadFromFile(const char* filename);
+    void add(Vehicle* v);
+    void remove(int index);
+    void show() const;
+    void edit(int index);
+    void save(const std::string& filename);
+    void load(const std::string& filename);
+    int getSize() const;
 };
+
+#endif
+#pragma once

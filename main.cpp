@@ -1,86 +1,78 @@
+﻿#include "Keeper.h"
+#include "Car.h"
+#include "Motorcycle.h"
+#include "Bus.h"
 #include <iostream>
-#include <windows.h>
-#include "Keeper.h"
 
 int main() {
-    SetConsoleOutputCP(65001);
-    SetConsoleCP(65001);
-
     Keeper keeper;
     int choice;
-
-    do {
-        std::cout << "\n==== Меню ====\n";
-        std::cout << "1. Добавить корабль\n";
-        std::cout << "2. Показать все корабли\n";
-        std::cout << "3. Удалить корабль по имени\n";
-        std::cout << "4. Сохранить всё в файл\n";
-        std::cout << "5. Загрузить всё из файла\n";
-        std::cout << "0. Выход\n";
-        std::cout << "Ваш выбор: ";
-        std::cin >> choice;
-
-        switch (choice) {
-            case 1: {
-                std::cin.ignore();
-                std::string name;
-                std::cout << "Введите имя корабля: ";
-                std::getline(std::cin, name);
-
-                std::cout << "Выберите тип:\n";
-                std::cout << "1. Подводная лодка\n";
-                std::cout << "2. Парусник\n";
-                std::cout << "3. Катер\n";
-                std::cout << "Ваш выбор: ";
-                int t;
-                std::cin >> t;
-
-                Ship* newShip = nullptr;
-                switch (t) {
-                    case 1: newShip = new Submarine(); break;
-                    case 2: newShip = new Sailboat(); break;
-                    case 3: newShip = new Motorboat(); break;
-                    default: std::cout << "Неверный выбор!\n"; break;
-                }
-
-                if (newShip) {
-                    newShip->SetName(name);
-                    newShip->Input();
-                    keeper.Add(newShip);
-                }
+    try {
+        while (true) {
+            std::cout << "\nMenu:\n1. Add Car\n2. Add Motorcycle\n3. Add Bus\n4. Remove by index\n5. Show all\n6. Edit by index\n7. Save to file\n8. Load from file\n9. Exit\n";
+            std::cout << "Choice: ";
+            std::cin >> choice;
+            if (choice == 1) {
+                std::string mark, model, color, trans;
+                double vol;
+                std::cout << "Enter mark, model, volume, color, transmission: ";
+                std::cin >> mark >> model >> vol >> color >> trans;
+                keeper.add(new Car(mark, model, vol, color, trans));
+            }
+            else if (choice == 2) {
+                std::string mark, model, terrain;
+                double vol, power;
+                std::cout << "Enter mark, model, volume, power, terrain: ";
+                std::cin >> mark >> model >> vol >> power >> terrain;
+                keeper.add(new Motorcycle(mark, model, vol, power, terrain));
+            }
+            else if (choice == 3) {
+                std::string mark, model, dest;
+                int seats, total;
+                std::cout << "Enter mark, model, seats, totalSeats, destination: ";
+                std::cin >> mark >> model >> seats >> total >> dest;
+                keeper.add(new Bus(mark, model, seats, total, dest));
+            }
+            else if (choice == 4) {
+                int idx;
+                std::cout << "Enter index to remove: ";
+                std::cin >> idx;
+                keeper.remove(idx);
+            }
+            else if (choice == 5) {
+                keeper.show();
+            }
+            else if (choice == 6) {
+                int idx;
+                std::cout << "Enter index to edit: ";
+                std::cin >> idx;
+                keeper.edit(idx);
+            }
+            else if (choice == 7) {
+                std::string file;
+                std::cout << "Enter filename to save: ";
+                std::cin >> file;
+                keeper.save(file);
+            }
+            else if (choice == 8) {
+                std::string file;
+                std::cout << "Enter filename to load: ";
+                std::cin >> file;
+                keeper.load(file);
+            }
+            else if (choice == 9) {
                 break;
             }
-
-            case 2:
-                keeper.DisplayAll();
-                break;
-
-            case 3: {
-                std::cin.ignore();
-                std::string name;
-                std::cout << "Введите имя корабля для удаления: ";
-                std::getline(std::cin, name);
-                keeper.RemoveByName(name);
-                break;
+            else {
+                std::cout << "Invalid choice." << std::endl;
             }
-
-            case 4:
-                keeper.SaveToFile("ships.txt");
-                break;
-
-            case 5:
-                keeper.LoadFromFile("ships.txt");
-                break;
-
-            case 0:
-                std::cout << "Выход из программы.\n";
-                break;
-
-            default:
-                std::cout << "Неверный ввод!\n";
         }
-
-    } while (choice != 0);
-
+    }
+    catch (const IndexOutOfRangeException& e) {
+        std::cout << "Exception: " << e.what() << std::endl;
+    }
+    catch (const FileException& e) {
+        std::cout << "Exception: " << e.what() << std::endl;
+    }
     return 0;
 }

@@ -1,109 +1,110 @@
 #include "Keeper.h"
+#include "Car.h"
+#include "Motorcycle.h"
+#include "Bus.h"
+#include <fstream>
+#include <iostream>
 
-Keeper::Keeper() : ships(nullptr), count(0), capacity(0) {}
+Keeper::Keeper() : vehicles(nullptr), size(0) {
+    std::cout << "Keeper: Constructor called." << std::endl;
+}
 
 Keeper::~Keeper() {
-    for (int i = 0; i < count; ++i)
-        delete ships[i];
-    delete[] ships;
-}
-
-void Keeper::Expand() {
-    int newCapacity = (capacity == 0) ? 2 : capacity * 2;
-    Ship** newArr = new Ship*[newCapacity];
-    for (int i = 0; i < count; ++i)
-        newArr[i] = ships[i];
-    delete[] ships;
-    ships = newArr;
-    capacity = newCapacity;
-}
-
-void Keeper::Add(Ship* ship) {
-    if (count >= capacity)
-        Expand();
-    ships[count++] = ship;
-}
-
-void Keeper::RemoveByName(const std::string& name) {
-    for (int i = 0; i < count; ++i) {
-        if (ships[i]->GetName() == name) {
-            delete ships[i];
-            for (int j = i; j < count - 1; ++j)
-                ships[j] = ships[j + 1];
-            --count;
-            std::cout << "Корабль \"" << name << "\" удалён.\n";
-            return;
-        }
+    std::cout << "Keeper: Destructor called. Cleaning up..." << std::endl;
+    for (int i = 0; i < size; ++i) {
+        delete vehicles[i];
     }
-    std::cout << "Корабль с именем \"" << name << "\" не найден.\n";
+    delete[] vehicles;
 }
 
-void Keeper::DisplayAll() const {
-    if (count == 0) {
-        std::cout << "Нет сохранённых кораблей.\n";
-        return;
+void Keeper::add(Vehicle* v) {
+    Vehicle** newVehicles = new Vehicle * [size + 1];
+    for (int i = 0; i < size; ++i) {
+        newVehicles[i] = vehicles[i];
     }
-    for (int i = 0; i < count; ++i) {
-        std::cout << "\n--- Корабль " << (i + 1) << " ---\n";
-        ships[i]->Display();
+    newVehicles[size] = v;
+    delete[] vehicles;
+    vehicles = newVehicles;
+    ++size;
+}
+
+void Keeper::remove(int index) {
+    if (index < 0 || index >= size) {
+        throw IndexOutOfRangeException();
+    }
+    delete vehicles[index];
+    for (int i = index; i < size - 1; ++i) {
+        vehicles[i] = vehicles[i + 1];
+    }
+    --size;
+    Vehicle** newVehicles = new Vehicle * [size];
+    for (int i = 0; i < size; ++i) {
+        newVehicles[i] = vehicles[i];
+    }
+    delete[] vehicles;
+    vehicles = newVehicles;
+}
+
+void Keeper::show() const {
+    for (int i = 0; i < size; ++i) {
+        std::cout << i << ": ";
+        vehicles[i]->print();
     }
 }
 
-void Keeper::SaveToFile(const char* filename) const {
+void Keeper::edit(int index) {
+    if (index < 0 || index >= size) {
+        throw IndexOutOfRangeException();
+    }
+    std::string param;
+    std::cout << "Editing object at index " << index << ". Type: ";
+    vehicles[index]->print();
+    // ����� ����� �������� ���� ��������������, �� ��� �������� ��������� (��� ��������� �� ���� �������)
+    std::cout << "Edit not fully implemented in demo; use getters/setters directly." << std::endl;
+}
+
+void Keeper::save(const std::string& filename) {
     std::ofstream out(filename);
     if (!out) {
-        std::cerr << "Ошибка открытия файла для записи!\n";
-        return;
+        throw FileException("Error opening file for writing.");
     }
-
-    out << count << '\n';
-    for (int i = 0; i < count; ++i) {
-        out << ships[i]->GetType() << '\n';
-        ships[i]->SaveToFile(out);
+    out << size << std::endl;
+    for (int i = 0; i < size; ++i) {
+        vehicles[i]->serialize(out);
     }
-
     out.close();
-    std::cout << "Данные успешно сохранены.\n";
 }
 
-void Keeper::LoadFromFile(const char* filename) {
+void Keeper::load(const std::string& filename) {
     std::ifstream in(filename);
     if (!in) {
-        std::cerr << "Ошибка открытия файла для чтения!\n";
-        return;
+        throw FileException("Error opening file for reading.");
     }
-
-    for (int i = 0; i < count; ++i)
-        delete ships[i];
-    delete[] ships;
-    ships = nullptr;
-    count = 0;
-    capacity = 0;
-
-    int num;
-    in >> num;
-    in.ignore();
-
-    for (int i = 0; i < num; ++i) {
-        std::string type;
-        std::getline(in, type);
-
-        Ship* ship = nullptr;
-        if (type == "Submarine")
-            ship = new Submarine();
-        else if (type == "Sailboat")
-            ship = new Sailboat();
-        else if (type == "Motorboat")
-            ship = new Motorboat();
-        else {
-            std::cerr << "Неизвестный тип корабля: " << type << "\n";
-            continue;
+    int newSize;
+    in >> newSize;
+    for (int i = 0; i < size; ++i) {
+        delete vehicles[i];
+    }
+    delete[] vehicles;
+    size = newSize;
+    vehicles = new Vehicle * [size];
+    char type;
+    for (int i = 0; i < size; ++i) {
+        in >> type;
+        if (type == 'C') {
+            vehicles[i] = new Car();
         }
-
-        ship->LoadFromFile(in);
-        Add(ship);
+        else if (type == 'M') {
+            vehicles[i] = new Motorcycle();
+        }
+        else if (type == 'B') {
+            vehicles[i] = new Bus();
+        }
+        vehicles[i]->deserialize(in);
     }
-
     in.close();
-    std::cout << "Данные успешно загружены.\n";
+}
+
+int Keeper::getSize() const {
+    return size;
 }
